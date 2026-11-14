@@ -1,0 +1,366 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Language Translation Tool</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            width: 100%;
+            max-width: 750px;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #777;
+            margin-bottom: 25px;
+        }
+
+        .language-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        select {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 7px;
+            font-size: 15px;
+        }
+
+        #swap {
+            padding: 10px 15px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 7px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            resize: vertical;
+            font-size: 16px;
+            outline: none;
+        }
+
+        textarea:focus {
+            border-color: #667eea;
+        }
+
+        .output {
+            margin-top: 20px;
+        }
+
+        .output h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        #translatedText {
+            background: #f5f5f5;
+            min-height: 150px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            overflow-wrap: anywhere;
+            white-space: pre-wrap;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .buttons button {
+            flex: 1;
+            padding: 13px;
+            border: none;
+            border-radius: 7px;
+            color: white;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        #translate {
+            background: #667eea;
+        }
+
+        #copy {
+            background: #28a745;
+        }
+
+        #speak {
+            background: #ff9800;
+        }
+
+        #translate:hover {
+            background: #5368d5;
+        }
+
+        #copy:hover {
+            background: #218838;
+        }
+
+        #speak:hover {
+            background: #e68900;
+        }
+
+        #status {
+            margin-top: 15px;
+            text-align: center;
+            color: #555;
+        }
+
+        @media(max-width: 500px) {
+            .container {
+                padding: 20px;
+            }
+
+            .language-box {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Language Translator</h1>
+    <p class="subtitle">
+        Translate text into different languages easily
+    </p>
+
+    <div class="language-box">
+
+        <select id="sourceLanguage">
+            <option value="en">English</option>
+            <option value="hi">Hindi</option>
+            <option value="bn">Bengali</option>
+            <option value="fr">French</option>
+            <option value="es">Spanish</option>
+            <option value="de">German</option>
+            <option value="it">Italian</option>
+            <option value="ja">Japanese</option>
+            <option value="zh-CN">Chinese</option>
+            <option value="ar">Arabic</option>
+            <option value="ru">Russian</option>
+            <option value="pt">Portuguese</option>
+        </select>
+
+        <button id="swap" onclick="swapLanguages()">⇄</button>
+
+        <select id="targetLanguage">
+            <option value="hi">Hindi</option>
+            <option value="en">English</option>
+            <option value="bn">Bengali</option>
+            <option value="fr">French</option>
+            <option value="es">Spanish</option>
+            <option value="de">German</option>
+            <option value="it">Italian</option>
+            <option value="ja">Japanese</option>
+            <option value="zh-CN">Chinese</option>
+            <option value="ar">Arabic</option>
+            <option value="ru">Russian</option>
+            <option value="pt">Portuguese</option>
+        </select>
+
+    </div>
+
+    <textarea id="inputText"
+        placeholder="Enter text to translate..."></textarea>
+
+    <div class="output">
+        <h3>Translated Text</h3>
+        <div id="translatedText">
+            Translation will appear here...
+        </div>
+    </div>
+
+    <div class="buttons">
+
+        <button id="translate" onclick="translateText()">
+            Translate
+        </button>
+
+        <button id="copy" onclick="copyText()">
+            Copy
+        </button>
+
+        <button id="speak" onclick="speakText()">
+            🔊 Speak
+        </button>
+
+    </div>
+
+    <p id="status"></p>
+
+</div>
+
+<script>
+
+    async function translateText() {
+
+        const input = document.getElementById("inputText").value.trim();
+
+        const source = document.getElementById("sourceLanguage").value;
+
+        const target = document.getElementById("targetLanguage").value;
+
+        const result = document.getElementById("translatedText");
+
+        const status = document.getElementById("status");
+
+        if (input === "") {
+            status.innerText = "Please enter some text!";
+            return;
+        }
+
+        if (source === target) {
+            result.innerText = input;
+            status.innerText = "Both languages are the same.";
+            return;
+        }
+
+        status.innerText = "Translating...";
+
+        try {
+
+            const url =
+                "https://api.mymemory.translated.net/get?q=" +
+                encodeURIComponent(input) +
+                "&langpair=" + source + "|" + target;
+
+            const response = await fetch(url);
+
+            if (!response.ok) {
+                throw new Error("API request failed");
+            }
+
+            const data = await response.json();
+
+            if (data.responseStatus !== 200 ||
+                !data.responseData.translatedText) {
+                throw new Error("Translation unavailable");
+            }
+
+            result.innerText =
+                data.responseData.translatedText;
+
+            status.innerText = "Translation completed successfully!";
+
+        } catch (error) {
+
+            result.innerText = "Translation failed. Please try again.";
+
+            status.innerText =
+                "Error: " + error.message;
+
+        }
+    }
+
+    function copyText() {
+
+        const text =
+            document.getElementById("translatedText").innerText;
+
+        if (text === "Translation will appear here..." ||
+            text === "Translation failed. Please try again.") {
+            document.getElementById("status").innerText =
+                "No translated text to copy!";
+            return;
+        }
+
+        navigator.clipboard.writeText(text)
+            .then(() => {
+                document.getElementById("status").innerText =
+                    "Text copied successfully!";
+            })
+            .catch(() => {
+                document.getElementById("status").innerText =
+                    "Unable to copy text.";
+            });
+    }
+
+    function speakText() {
+
+        const text =
+            document.getElementById("translatedText").innerText;
+
+        const target =
+            document.getElementById("targetLanguage").value;
+
+        if (!text || text === "Translation will appear here...") {
+            document.getElementById("status").innerText =
+                "No text available to speak!";
+            return;
+        }
+
+        const speech = new SpeechSynthesisUtterance(text);
+
+        speech.lang = target;
+
+        window.speechSynthesis.speak(speech);
+    }
+
+    function swapLanguages() {
+
+        const source =
+            document.getElementById("sourceLanguage");
+
+        const target =
+            document.getElementById("targetLanguage");
+
+        const temp = source.value;
+
+        source.value = target.value;
+
+        target.value = temp;
+
+    }
+
+</script>
+
+</body>
+</html>
